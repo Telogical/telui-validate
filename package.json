@@ -1,0 +1,29 @@
+{
+  "name": "TelUI-Validate",
+  "version": "1.0.0",
+  "description": "A validation attribute available for all TelUI components",
+  "dependencies":  {
+  
+  },
+  "devDependencies": {
+      "lodash": "*"
+  },
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:Telogical/TelUI-Validate"
+  },
+  "keywords": [
+    "telui",
+    "validate"
+  ],
+  "author": "Joe Hare <jhare@telogical.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Telogical/TelUI-Validate/issues"
+  },
+  "homepage": "https://github.com/Telogical/TelUI-Validate"
+}
