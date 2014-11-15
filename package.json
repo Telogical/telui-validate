@@ -1,29 +1,19 @@
 {
   "name": "TelUI-Validate",
-  "version": "1.0.0",
-  "description": "A validation attribute available for all TelUI components",
+  "version": "1.0.1",
+  "private": true,
   "dependencies":  {
-  
+        "TelUI-Core": "git+ssh://git@github.com:Telogical/TelUI-Core.git#develop-flatui-vanilla",
+        "partialify": "*"
   },
   "devDependencies": {
-      "lodash": "*"
+      "lodash": "*",
+      "browserify": "3.46.0",
+      "browserify-shim": "3.x.x"
   },
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://git@github.com:Telogical/TelUI-Validate"
-  },
-  "keywords": [
-    "telui",
-    "validate"
-  ],
-  "author": "Joe Hare <jhare@telogical.com>",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/Telogical/TelUI-Validate/issues"
-  },
-  "homepage": "https://github.com/Telogical/TelUI-Validate"
+  "browserify": {
+      "transform": [
+          "partialify"
+      ]
+  }
 }
