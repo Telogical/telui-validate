@@ -16,7 +16,7 @@ TelogicalUi
           'alpha-only': /^[a-zA-Z]$/,
           'numeric-only': /^[0-9]$/,
           'alpha-numeric': /^[a-zA-Z0-9_]*$/,
-          'required': /^\S+$/ // require any non-whitespace.
+          'required': /^\S+$/ // require only non-whitespace.
       };
 
       return {
