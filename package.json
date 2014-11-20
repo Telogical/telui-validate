@@ -1,6 +1,6 @@
 {
   "name": "TelUI-Validate",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "private": true,
   "dependencies":  {
         "TelUI-Core": "git+ssh://git@github.com:Telogical/TelUI-Core.git#develop-flatui-vanilla",
