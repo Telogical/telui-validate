@@ -1,0 +1,19 @@
+{
+  "name": "TelUI-Validate",
+  "version": "1.0.1",
+  "private": true,
+  "dependencies":  {
+        "TelUI-Core": "git+ssh://git@github.com:Telogical/TelUI-Core.git#develop-flatui-vanilla",
+        "partialify": "*"
+  },
+  "devDependencies": {
+      "lodash": "*",
+      "browserify": "3.46.0",
+      "browserify-shim": "3.x.x"
+  },
+  "browserify": {
+      "transform": [
+          "partialify"
+      ]
+  }
+}
