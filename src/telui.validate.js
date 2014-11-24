@@ -14,6 +14,9 @@ TelogicalUi
           'alpha-only': /^[a-zA-Z]$/,
           'numeric-only': /^[0-9]$/,
           'alpha-numeric': /^[a-zA-Z0-9_]*$/,
+          'dateymd': /^\d{4}-\d{2}-\d{2}$/,
+          'money': /^(?:-)?\$\d+(?:\.\d{2})?$/,
+          'rangePlus': /^\d+(?:(?:\+)?|(?:-\d+)?)$/,
           'required': /^\S+$/ // require only non-whitespace.
       };
 
@@ -24,7 +27,7 @@ TelogicalUi
           check: function minLengthCheck(value) {
             return value.length >= value;
           },
-          message: 'This field is not long enough.' // TODO: Come upwith function taht calculates whether it's 'characters' or 'character'
+          message: 'This field is not long enough.' 
         },
         'maxLength': {
           scopeAttr: 'maxlength',
@@ -32,7 +35,7 @@ TelogicalUi
           check: function maxLengthCheck(value) {
             return value.length <= this.value;
           },
-          message: 'This field is too long.' // TODO: Come upwith function taht calculates whether it's 'characters' or 'character'
+          message: 'This field is too long.' 
         },
         'pattern': {
           scopeAttr: 'pattern',
@@ -42,6 +45,39 @@ TelogicalUi
           },
           formatName: null, // 'a zip code', 'a phone number'
           message: 'This field does not meet the required format.'
+        },
+        'money': {
+          scopeAttr: 'money',
+          value: __validationClasses.money,
+          check: function moneyCheck(value) {
+            return (
+              value === '-1' ||
+              value.match(this.value) !== null
+            );
+          },
+          formatName: 'money',
+          message: 'This field is not money.'
+        },
+        'rangePlus': {
+          scopeAttr: 'rangePlus',
+          value: __validationClasses['rangePlus'],
+          check: function rangeCheck(value) {
+            var validForm = value.match(this.value) !== null;
+            if(validForm && value.indexOf('-') > -1) {
+              var leftRight = value.split('-');
+              var left = parseInt(leftRight[0]);
+              var right = parseInt(leftRight[1]);
+              if( left < right) {
+                return true;
+              } else {
+                return false;
+              }
+            } else {
+              return true;
+            }
+          },
+          formatName: 'rangePlus', 
+          message: 'This field is not a range.'
         },
         'required': {
           scopeAttr: 'required',
@@ -58,12 +94,15 @@ TelogicalUi
       };
 
       this.attach = function attach(scopeObj) {
+        // TODO: Loop over the base validators
         _.extend(scopeObj, { 
           'valid': '=?',
           'minLength': '@',
           'maxlength': '@',
           'required': '@',
-          'pattern': '@'
+          'pattern': '@',
+          'rangePlus': '@',
+          'money': '@'
         });
 
         return scopeObj;
@@ -81,9 +120,11 @@ TelogicalUi
             // Set value to the given attribute. Treat blanks as true. This
             // may seem strange but attributes like 'required' will just be
             // tossed on and assumed true
-            $scope.validators[validatorName].value =
-              $scope[validatorDef.scopeAttr] === '' ?
-                true : $scope[validatorDef.scopeAttr];
+            if($scope.validators[validatorName].value === null) {
+              $scope.validators[validatorName].value =
+                $scope[validatorDef.scopeAttr] === '' ?
+                  true : $scope[validatorDef.scopeAttr];
+             }
            }
          });
       };
