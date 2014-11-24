@@ -14,6 +14,7 @@ TelogicalUi
           'alpha-only': /^[a-zA-Z]$/,
           'numeric-only': /^[0-9]$/,
           'alpha-numeric': /^[a-zA-Z0-9_]*$/,
+          'dateymd': /^\d{4}-\d{2}-\d{2}$/,
           'money': /^(?:-)?\$\d+(?:\.\d{2})?$/,
           'rangePlus': /^\d+(?:(?:\+)?|(?:-\d+)?)$/,
           'required': /^\S+$/ // require only non-whitespace.
@@ -49,7 +50,10 @@ TelogicalUi
           scopeAttr: 'money',
           value: __validationClasses.money,
           check: function moneyCheck(value) {
-            return value.match(this.value) !== null;
+            return (
+              value === '-1' ||
+              value.match(this.value) !== null
+            );
           },
           formatName: 'money',
           message: 'This field is not money.'
@@ -58,7 +62,19 @@ TelogicalUi
           scopeAttr: 'rangePlus',
           value: __validationClasses['rangePlus'],
           check: function rangeCheck(value) {
-            return value.match(this.value) !== null;
+            var validForm = value.match(this.value) !== null;
+            if(validForm && value.indexOf('-') > -1) {
+              var leftRight = value.split('-');
+              var left = parseInt(leftRight[0]);
+              var right = parseInt(leftRight[1]);
+              if( left < right) {
+                return true;
+              } else {
+                return false;
+              }
+            } else {
+              return true;
+            }
           },
           formatName: 'rangePlus', 
           message: 'This field is not a range.'
