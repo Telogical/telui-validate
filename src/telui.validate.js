@@ -14,7 +14,6 @@ TelogicalUi
           'alpha-only': /^[a-zA-Z]$/,
           'numeric-only': /^[0-9]$/,
           'alpha-numeric': /^[a-zA-Z0-9_]*$/,
-          'dateymd': /^\d{4}-\d{2}-\d{2}$/,
           'money': /^(?:-)?\$\d+(?:\.\d{2})?$/,
           'rangePlus': /^\d+(?:(?:\+)?|(?:-\d+)?)$/,
           'required': /^\S+$/ // require only non-whitespace.
