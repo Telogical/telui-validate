@@ -62,17 +62,19 @@ TelogicalUi
           value: __validationClasses['rangePlus'],
           check: function rangeCheck(value) {
             var validForm = value.match(this.value) !== null;
-            if(validForm && value.indexOf('-') > -1) {
-              var leftRight = value.split('-');
-              var left = parseInt(leftRight[0]);
-              var right = parseInt(leftRight[1]);
-              if( left < right) {
-                return true;
-              } else {
-                return false;
+            if(validForm) {
+              if(value.indexOf('-') > -1) {
+                var leftRight = value.split('-');
+                var left = parseInt(leftRight[0]);
+                var right = parseInt(leftRight[1]);
+                if( left < right) {
+                  return true;
+                } else {
+                  return false;
+                }
               }
             } else {
-              return true;
+              return false;
             }
           },
           formatName: 'rangePlus', 
