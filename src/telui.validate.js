@@ -67,11 +67,9 @@ TelogicalUi
                 var leftRight = value.split('-');
                 var left = parseInt(leftRight[0]);
                 var right = parseInt(leftRight[1]);
-                if( left < right) {
-                  return true;
-                } else {
-                  return false;
-                }
+                return left < right;
+              } else {
+                return true
               }
             } else {
               return false;
