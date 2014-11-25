@@ -15,8 +15,7 @@ TelogicalUi
           'numeric-only': /^[0-9]$/,
           'alpha-numeric': /^[a-zA-Z0-9_]*$/,
           'money': /^(?:-)?\$\d+(?:\.\d{2})?$/,
-          'rangePlus': /^\d+(?:(?:\+)?|(?:-\d+)?)$/,
-          'required': /^\S+$/ // require only non-whitespace.
+          'rangePlus': /^\d+(?:(?:\+)?|(?:-\d+)?)$/
       };
 
       var __baseValidators = {
@@ -83,7 +82,8 @@ TelogicalUi
           value: null,
           check: function requiredCheck(value) {
             if(typeof value !== undefined) {
-              return value.match(__validationClasses.required) !== null;
+              //return value.match(__validationClasses.required) !== null;
+              return value.trim().length > 0;
             } else {
               return false;
             }
