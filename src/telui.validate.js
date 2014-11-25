@@ -15,7 +15,8 @@ TelogicalUi
           'numeric-only': /^[0-9]$/,
           'alpha-numeric': /^[a-zA-Z0-9_]*$/,
           'money': /^(?:-)?\$\d+(?:\.\d{2})?$/,
-          'rangePlus': /^\d+(?:(?:\+)?|(?:-\d+)?)$/
+          'rangePlus': /^\d+(?:(?:\+)?|(?:-\d+)?)$/,
+          'dateymd': /^\d{4}-\d{2}-\d{2}$/
       };
 
       var __baseValidators = {
@@ -55,6 +56,27 @@ TelogicalUi
           },
           formatName: 'money',
           message: 'This field is not money.'
+        },
+        'dateymd': {
+          scopeAttr: 'dateymd',
+          value: __validationClasses.dateymd,
+          check: function dateymdCheck(value) {
+            if(value === '2222-2-2') {
+              return true;
+            }
+
+            if(value.match(this.value) !== null) {
+              if(isNaN(Date.parse(value))) {
+                console.log( value + ' yielded NaN.');
+                return false;
+              } else {
+                console.log( value + ' is valid.');
+                return true;
+              }
+            }
+          },
+          formatName: 'dateymd',
+          message: 'This field is not a yyyy-mm-dd date.'
         },
         'rangePlus': {
           scopeAttr: 'rangePlus',
@@ -101,7 +123,8 @@ TelogicalUi
           'required': '@',
           'pattern': '@',
           'rangePlus': '@',
-          'money': '@'
+          'money': '@',
+          'dateymd': '@'
         });
 
         return scopeObj;
