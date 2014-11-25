@@ -134,7 +134,6 @@ TelogicalUi
       this.buildValidators = function buildValidators($scope) {
         $scope.validators = {};
         $scope.validatorStates = {};
-        $scope.valid = true;
 
          _.each(__baseValidators, function buildValidator(validatorDef, validatorName) {
            if(typeof $scope[validatorDef.scopeAttr] !== 'undefined') {
@@ -172,8 +171,10 @@ TelogicalUi
           allValid = allValid && $scope.validatorStates[validatorName];
         });
 
-        $scope.valid = allValid;
-        $scope.state = $scope.valid ? 'default' : 'error';
+        if(typeof $scope.valid !== 'undefined') {
+          $scope.valid.isValid = allValid;
+          $scope.state = $scope.valid.isValid ? 'default' : 'error';
+        }
       };
 
     }
