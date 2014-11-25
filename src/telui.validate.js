@@ -3,7 +3,8 @@ var _ = require('lodash');
 
 console.log('defining teluiValidate');
 TelogicalUi
-  .service('TelUIValidate', [function teluiValidateService() {
+  .service('TelUIValidate', ['$parse',
+     function teluiValidateService($parse) {
       'use strict';
 
       // Stylistically, for the alpha/numeric/alpha-numeric regexes I'm using the '*'
@@ -155,7 +156,19 @@ TelogicalUi
         var allValid = true;
 
         _.each($scope.validators, function performValidate(validator, validatorName) {
-          $scope.validatorStates[validatorName] = validator.check($scope.value);
+
+          if(typeof($scope.value) === 'object') {
+             if(typeof $scope.labelProp === 'undefined') {
+               throw new Error('Value of type "object" given without a property to validate.')
+             } else {
+               var getActualValue = $parse($scope.labelProp);
+               var actualValue = getActualValue($scope.value);
+               $scope.validatorStates[validatorName] = validator.check(actualValue);
+             }
+          } else {
+            $scope.validatorStates[validatorName] = validator.check($scope.value);
+          } 
+
           allValid = allValid && $scope.validatorStates[validatorName];
         });
 
