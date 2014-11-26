@@ -16,6 +16,7 @@ TelogicalUi
           'numeric-only': /^[0-9]$/,
           'alpha-numeric': /^[a-zA-Z0-9_]*$/,
           'money': /^(?:-)?\$\d+(?:\.\d{2})?$/,
+          'moneyrate': /^(?:(?:-)?\$\d+(?:\.\d{2}$)?)|(?:\d+%)$/,
           'rangePlus': /^\d+(?:(?:\+)?|(?:-\d+)?)$/,
           'dateymd': /^\d{4}-\d{2}-\d{2}$/
       };
@@ -56,6 +57,18 @@ TelogicalUi
             );
           },
           formatName: 'money',
+          message: 'This field is not money.'
+        },
+        'moneyrate': {
+          scopeAttr: 'moneyrate',
+          value: __validationClasses.moneyrate,
+          check: function moneyRateCheck(value) {
+            return (
+              value === '-1' ||
+              value.match(this.value) !== null
+            );
+          },
+          formatName: 'moneyrate',
           message: 'This field is not money.'
         },
         'dateymd': {
@@ -125,6 +138,7 @@ TelogicalUi
           'pattern': '@',
           'rangePlus': '@',
           'money': '@',
+          'moneyrate': '@',
           'dateymd': '@'
         });
 
