@@ -1,7 +1,6 @@
 var TelogicalUi = angular.module('TelUI');
 var _ = require('lodash');
 
-console.log('defining teluiValidate');
 TelogicalUi
   .service('TelUIValidate', ['$parse',
      function teluiValidateService($parse) {
@@ -80,13 +79,7 @@ TelogicalUi
             }
 
             if(value.match(this.value) !== null) {
-              if(isNaN(Date.parse(value))) {
-                console.log( value + ' yielded NaN.');
-                return false;
-              } else {
-                console.log( value + ' is valid.');
-                return true;
-              }
+              return !isNaN(Date.parse(value));
             }
           },
           formatName: 'dateymd',
@@ -94,7 +87,7 @@ TelogicalUi
         },
         'rangePlus': {
           scopeAttr: 'rangePlus',
-          value: __validationClasses['rangePlus'],
+          value: __validationClasses.rangePlus,
           check: function rangeCheck(value) {
             var validForm = value.match(this.value) !== null;
             if(validForm) {
@@ -104,7 +97,7 @@ TelogicalUi
                 var right = parseInt(leftRight[1]);
                 return left < right;
               } else {
-                return true
+                return true;
               }
             } else {
               return false;
@@ -145,9 +138,30 @@ TelogicalUi
         return scopeObj;
       };
 
+      this.resetValidationStates = function resetValidationStates($scope) {
+        $scope.validatorStates = {};
+        $scope.valid.validatorControlStates = $scope.valid.validatorControlStates || {};
+      };
+
+      this.checkValidationStates = function checkValidationStates(controlStates) {
+        if(typeof controlStates === 'undefined') {
+          return true;
+        }
+
+        var allValid = true;
+        _.each(controlStates, function checkControlStates(controlState) {
+          allValid = allValid && controlState;
+          if(!allValid) {
+            return false;
+          }
+        });
+
+        return allValid;
+      };
+
       this.buildValidators = function buildValidators($scope) {
         $scope.validators = {};
-        $scope.validatorStates = {};
+        this.resetValidationStates($scope);
 
          _.each(__baseValidators, function buildValidator(validatorDef, validatorName) {
            if(typeof $scope[validatorDef.scopeAttr] !== 'undefined') {
@@ -165,14 +179,18 @@ TelogicalUi
          });
       };
 
-      this.validate = function validate($scope) {
-        var allValid = true;
 
+      this.validate = function validate($scope) {
+        if(typeof $scope.valid === 'undefined') {
+          return;
+        }
+
+        var controlValid = true;
         _.each($scope.validators, function performValidate(validator, validatorName) {
 
           if(typeof($scope.value) === 'object') {
              if(typeof $scope.labelProp === 'undefined') {
-               throw new Error('Value of type "object" given without a property to validate.')
+               throw new Error('Value of type "object" given without a property to validate.');
              } else {
                var getActualValue = $parse($scope.labelProp);
                var actualValue = getActualValue($scope.value);
@@ -182,12 +200,16 @@ TelogicalUi
             $scope.validatorStates[validatorName] = validator.check($scope.value);
           } 
 
-          allValid = allValid && $scope.validatorStates[validatorName];
+          if(typeof $scope.id !== 'undefined' && $scope.id) {
+            $scope.valid.validatorControlStates[$scope.id] = $scope.validatorStates[validatorName];
+          }
+          controlValid = controlValid && $scope.validatorStates[validatorName];
         });
-
+        
+        $scope.state = controlValid ? 'default' : 'error';
+        
         if(typeof $scope.valid !== 'undefined') {
-          $scope.valid.isValid = allValid;
-          $scope.state = $scope.valid.isValid ? 'default' : 'error';
+          $scope.valid.isValid = this.checkValidationStates($scope.valid.validatorControlStates);
         }
       };
 
