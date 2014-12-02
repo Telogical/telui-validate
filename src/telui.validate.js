@@ -162,8 +162,8 @@ TelogicalUi
       };
 
       this.deleteStates = function deleteStates(parentID, $scope) {
-        if($scope.valid.validControlStates) {
-          delete $scope.valid.validControlStates[parentID];
+        if(typeof $scope.valid.validatorControlStates !== 'undefined') {
+          delete $scope.valid.validatorControlStates[parentID];
         }
       };
 
