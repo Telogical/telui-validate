@@ -179,6 +179,56 @@ TelogicalUi
         return allValid;
       };
 
+      this.validate = function validate($scope) {
+        if(typeof $scope.valid === 'undefined' ||
+           typeof $scope.valid.validatorControlStates === 'undefined') {
+          return;
+        }
+
+        var controlValid = true;
+
+        if(!$scope.disabled) {
+          _.each($scope.validators, function performValidate(validator, validatorName) {
+
+            if(typeof($scope.value) === 'object') {
+               if(typeof $scope.labelProp === 'undefined') {
+                 throw new Error('Value of type "object" given without a property to validate.');
+               } else {
+                 var getActualValue = $parse($scope.labelProp);
+                 var actualValue = getActualValue($scope.value);
+                 $scope.validatorStates[validatorName] = validator.check(actualValue);
+               }
+            } else {
+              $scope.validatorStates[validatorName] = validator.check($scope.value);
+            } 
+
+            controlValid = controlValid && $scope.validatorStates[validatorName];
+          });
+        }
+        
+        if(typeof $scope.id !== 'undefined' && $scope.id) {
+          $scope.valid.validatorControlStates[$scope.id] = controlValid;
+        }
+
+        $scope.state = controlValid ? 'default' : 'error';
+        
+        if(typeof $scope.valid !== 'undefined') {
+          $scope.valid.isValid = this.checkValidationStates($scope.valid.validatorControlStates);
+        }
+      };
+
+      this.handleDisabled = function handleDisabled(isDisabled, $scope) {
+        console.log('reacting to new value of disabled', isDisabled);
+        if(isDisabled) {
+          if(typeof $scope.valid !== 'undefined') {
+            $scope.valid.validatorControlStates[$scope.id] = true;
+            $scope.state = 'default';
+          }
+        }
+
+        this.validate($scope);
+      };
+
       this.buildValidators = function buildValidators($scope) {
         $scope.validators = {};
         this.resetValidationStates($scope);
@@ -199,45 +249,6 @@ TelogicalUi
              }
            }
          });
-      };
-
-
-      this.validate = function validate($scope) {
-        if($scope.disabled) {
-          return;
-        }
-
-        if(typeof $scope.valid === 'undefined' ||
-           typeof $scope.valid.validatorControlStates === 'undefined') {
-          return;
-        }
-
-        var controlValid = true;
-        _.each($scope.validators, function performValidate(validator, validatorName) {
-
-          if(typeof($scope.value) === 'object') {
-             if(typeof $scope.labelProp === 'undefined') {
-               throw new Error('Value of type "object" given without a property to validate.');
-             } else {
-               var getActualValue = $parse($scope.labelProp);
-               var actualValue = getActualValue($scope.value);
-               $scope.validatorStates[validatorName] = validator.check(actualValue);
-             }
-          } else {
-            $scope.validatorStates[validatorName] = validator.check($scope.value);
-          } 
-
-          controlValid = controlValid && $scope.validatorStates[validatorName];
-        });
-        
-        if(typeof $scope.id !== 'undefined' && $scope.id) {
-          $scope.valid.validatorControlStates[$scope.id] = controlValid;
-        }
-        $scope.state = controlValid ? 'default' : 'error';
-        
-        if(typeof $scope.valid !== 'undefined') {
-          $scope.valid.isValid = this.checkValidationStates($scope.valid.validatorControlStates);
-        }
       };
 
     }
