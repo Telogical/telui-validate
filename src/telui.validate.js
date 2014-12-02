@@ -125,6 +125,7 @@ TelogicalUi
         // TODO: Loop over the base validators
         _.extend(scopeObj, { 
           'valid': '=?',
+          'validParentValue': '=?',
           'minLength': '@',
           'maxlength': '@',
           'required': '@',
@@ -138,9 +139,32 @@ TelogicalUi
         return scopeObj;
       };
 
+      this.hasValidatorParent = function hasvalidatorParent($scope) {
+        return typeof $scope.validParentValue !== 'undefined';
+      };
+
       this.resetValidationStates = function resetValidationStates($scope) {
         $scope.validatorStates = {};
-        $scope.valid.validatorControlStates = $scope.valid.validatorControlStates || {};
+
+        if($scope.valid) {
+          $scope.valid.validatorControlStates = $scope.valid.validatorControlStates || {};
+
+          if(this.hasValidatorParent($scope)) {
+            $scope.validParentValue.__children = $scope.validParentValue.__children || [];
+          }
+        }
+      };
+
+      this.addSelfAsChild = function addSelfAsChild($scope) {
+        if(this.hasValidatorParent($scope)) {
+          $scope.validParent.__children.push($scope.id);
+        }
+      };
+
+      this.deleteStates = function deleteStates(parentID, $scope) {
+        if($scope.valid.validControlStates) {
+          delete $scope.valid.validControlStates[parentID];
+        }
       };
 
       this.checkValidationStates = function checkValidationStates(controlStates) {
@@ -162,6 +186,8 @@ TelogicalUi
       this.buildValidators = function buildValidators($scope) {
         $scope.validators = {};
         this.resetValidationStates($scope);
+
+        this.addSelfAsChild($scope);
 
          _.each(__baseValidators, function buildValidator(validatorDef, validatorName) {
            if(typeof $scope[validatorDef.scopeAttr] !== 'undefined') {
