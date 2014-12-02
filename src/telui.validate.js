@@ -126,7 +126,6 @@ TelogicalUi
         _.extend(scopeObj, { 
           'valid': '=?',
           'childids': '=?',
-          'anotherthing': '@',
           'minLength': '@',
           'maxlength': '@',
           'required': '@',
@@ -204,7 +203,12 @@ TelogicalUi
 
 
       this.validate = function validate($scope) {
-        if(typeof $scope.valid === 'undefined') {
+        if($scope.disabled) {
+          return;
+        }
+
+        if(typeof $scope.valid === 'undefined' ||
+           typeof $scope.valid.validatorControlStates === 'undefined') {
           return;
         }
 
