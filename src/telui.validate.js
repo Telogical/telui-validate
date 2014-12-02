@@ -125,7 +125,8 @@ TelogicalUi
         // TODO: Loop over the base validators
         _.extend(scopeObj, { 
           'valid': '=?',
-          'validParentValue': '=?',
+          'childids': '=?',
+          'anotherthing': '@',
           'minLength': '@',
           'maxlength': '@',
           'required': '@',
@@ -139,32 +140,28 @@ TelogicalUi
         return scopeObj;
       };
 
-      this.hasValidatorParent = function hasvalidatorParent($scope) {
-        return typeof $scope.validParentValue !== 'undefined';
-      };
-
       this.resetValidationStates = function resetValidationStates($scope) {
         $scope.validatorStates = {};
 
         if($scope.valid) {
           $scope.valid.validatorControlStates = $scope.valid.validatorControlStates || {};
-
-          if(this.hasValidatorParent($scope)) {
-            $scope.validParentValue.__children = $scope.validParentValue.__children || [];
-          }
         }
       };
 
       this.addSelfAsChild = function addSelfAsChild($scope) {
-        if(this.hasValidatorParent($scope)) {
-          $scope.validParent.__children.push($scope.id);
+        if(typeof $scope.childids !== 'undefined') {
+          $scope.childids.push($scope.id);
         }
       };
 
-      this.deleteStates = function deleteStates(parentID, $scope) {
+      this.deleteChildStates = function deleteChildStates(childStates, $scope) {
         if(typeof $scope.valid.validatorControlStates !== 'undefined') {
-          delete $scope.valid.validatorControlStates[parentID];
+          _.each(childStates, function deleteChildState(childState) {
+            delete $scope.valid.validatorControlStates[childState];
+          });
         }
+
+        this.validate($scope);
       };
 
       this.checkValidationStates = function checkValidationStates(controlStates) {
@@ -226,12 +223,12 @@ TelogicalUi
             $scope.validatorStates[validatorName] = validator.check($scope.value);
           } 
 
-          if(typeof $scope.id !== 'undefined' && $scope.id) {
-            $scope.valid.validatorControlStates[$scope.id] = $scope.validatorStates[validatorName];
-          }
           controlValid = controlValid && $scope.validatorStates[validatorName];
         });
         
+        if(typeof $scope.id !== 'undefined' && $scope.id) {
+          $scope.valid.validatorControlStates[$scope.id] = controlValid;
+        }
         $scope.state = controlValid ? 'default' : 'error';
         
         if(typeof $scope.valid !== 'undefined') {
