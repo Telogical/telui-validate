@@ -74,7 +74,7 @@ TelogicalUi
           scopeAttr: 'dateymd',
           value: __validationClasses.dateymd,
           check: function dateymdCheck(value) {
-            if(value === '2222-2-2') {
+            if(value === '2222-02-02') {
               return true;
             }
 
