@@ -239,6 +239,8 @@ TelogicalUi
         var noId = !$scope.id,
           controlIsDisabled = $scope.disabled,
           controlIsValid = true;
+        
+        resetValidationStates($scope);
 
         buildValidators($scope, $attrs);
 
@@ -252,14 +254,18 @@ TelogicalUi
           return;
         }
 
-        function performValidate(validator, validatorName) {
+        function performValidate(validator) {
           var _value = $scope.value;
 
           if (_.isObject($scope.value) && $scope.labelProp) {
             _value = $parse($scope.labelProp)($scope.value);
           }
-          $scope.validatorStates[validatorName] = validator.check(_value);
-          controlIsValid = controlIsValid && $scope.validatorStates[validatorName];
+            
+          console.log('validator states is', $scope.validatorStates);
+          console.log('validator name is', validator.name);
+          console.log('value is', _value);
+          $scope.validatorStates[validator.name] = validator.check(_value);
+          controlIsValid = controlIsValid && $scope.validatorStates[validator.name];
         }
 
         _.each($scope.valid.validators, performValidate);
@@ -302,10 +308,12 @@ TelogicalUi
       }
 
       function deleteChildStates(childStates, $scope) {
+        console.log('childstates to delete', childStates, $scope);
         if (typeof $scope.valid.validatorControlStates !== 'undefined') {
           _.each(childStates, function deleteChildState(childState) {
             delete $scope.valid.validatorControlStates[childState];
           });
+          $scope.valid.validators = [];
         }
 
         validate($scope);
