@@ -2,7 +2,8 @@ var TelogicalUi = angular.module('TelUI');
 var _ = require('lodash');
 
 TelogicalUi
-  .service('TelUIValidate', ['$parse',
+  .service('TelUIValidate', [
+    '$parse',
      function teluiValidateService($parse) {
       'use strict';
 
@@ -10,46 +11,71 @@ TelogicalUi
       // quantifier instead of '+'. Adding '+' would make the regex overlap with
       // checking for empty, which will be handled by "required"
       var __validationClasses = {
-          'zip': /(^-1$|^\$(?!(-|\$))\d*\.?\d+)$/, // supports long and short
-          'alpha-only': /^[a-zA-Z]$/,
-          'numeric-only': /^[0-9]$/,
-          'alpha-numeric': /^[a-zA-Z0-9_]*$/,
-          'money': /^(?:-)?\$\d+(?:\.\d{2})?$/,
-          'moneyrate': /^(?:(?:-)?\$\d+(?:\.\d{2})?$)|(?:^\d+%$)/,
-          'rangePlus': /^\d+(?:(?:\+)?|(?:-\d+)?)$/,
-          'dateymd': /^\d{4}-\d{2}-\d{2}$/
+        'zip': /(^-1$|^\$(?!(-|\$))\d*\.?\d+)$/, // supports long and short
+        'alpha-only': /^[a-zA-Z]$/,
+        'numeric-only': /^[0-9]$/,
+        'alpha-numeric': /^[a-zA-Z0-9_]*$/,
+        'money': /^(?:-)?\$\d+(?:\.\d{2})?$/,
+        'moneyrate': /^(?:(?:-)?\$\d+(?:\.\d{2})?$)|(?:^\d+%$)/,
+        'rangePlus': /^\d+(?:(?:\+)?|(?:-\d+)?)$/,
+        'dateymd': /^\d{4}-\d{2}-\d{2}$/
       };
 
-      var __baseValidators = {
-        'minLength': {
-          scopeAttr: 'minlength',
+      var err = {
+        noLabel: 'Value of type "object" given without a property to validate.',
+        noId: 'The application must have an Id on each scope. for the validator to track.'
+      };
+
+      var __baseValidators = [
+        {
+          name: 'minLength',
           value: null,
           check: function minLengthCheck(value) {
+
+            if (!value) {
+              return true;
+            }
+
             return value.length >= value;
           },
-          message: 'This field is not long enough.' 
+          message: 'This field is not long enough.'
         },
-        'maxLength': {
-          scopeAttr: 'maxlength',
+        {
+          name: 'maxLength',
           value: null,
           check: function maxLengthCheck(value) {
+
+            if (!value) {
+              return true;
+            }
+
             return value.length <= this.value;
           },
-          message: 'This field is too long.' 
+          message: 'This field is too long.'
         },
-        'pattern': {
-          scopeAttr: 'pattern',
+        {
+          name: 'pattern',
           value: null,
           check: function patternCheck(value) {
+
+            if (!value) {
+              return true;
+            }
+
             return value.match(this.value) !== null;
           },
           formatName: null, // 'a zip code', 'a phone number'
           message: 'This field does not meet the required format.'
         },
-        'money': {
-          scopeAttr: 'money',
+        {
+          name: 'money',
           value: __validationClasses.money,
           check: function moneyCheck(value) {
+
+            if (!value) {
+              return true;
+            }
+
             return (
               value === '-1' ||
               value.match(this.value) !== null
@@ -58,10 +84,15 @@ TelogicalUi
           formatName: 'money',
           message: 'This field is not money.'
         },
-        'moneyrate': {
-          scopeAttr: 'moneyrate',
+        {
+          name: 'moneyrate',
           value: __validationClasses.moneyrate,
           check: function moneyRateCheck(value) {
+
+            if (!value) {
+              return true;
+            }
+
             return (
               value === '-1' ||
               value.match(this.value) !== null
@@ -70,187 +101,218 @@ TelogicalUi
           formatName: 'moneyrate',
           message: 'This field is not money.'
         },
-        'dateymd': {
-          scopeAttr: 'dateymd',
+        {
+          name: 'dateymd',
           value: __validationClasses.dateymd,
           check: function dateymdCheck(value) {
-            if(value === '2222-02-02') {
+
+            if (!value) {
               return true;
             }
 
-            if(value.match(this.value) !== null) {
+            if (value === '2222-02-02') {
+              return true;
+            }
+
+            if (value.match(this.value) !== null) {
               return !isNaN(Date.parse(value));
             }
           },
           formatName: 'dateymd',
           message: 'This field is not a yyyy-mm-dd date.'
         },
-        'rangePlus': {
-          scopeAttr: 'rangePlus',
+        {
+          name: 'rangePlus',
           value: __validationClasses.rangePlus,
           check: function rangeCheck(value) {
-            var validForm = value.match(this.value) !== null;
-            if(validForm) {
-              if(value.indexOf('-') > -1) {
-                var leftRight = value.split('-');
-                var left = parseInt(leftRight[0]);
-                var right = parseInt(leftRight[1]);
+
+            if (!value) {
+              return true;
+            }
+
+            var validLexicalForm = value.match(this.value) !== null;
+            if (validLexicalForm) {
+              if (value.indexOf('-') > -1) {
+                var leftRight = value.split('-'),
+                  left = parseInt(leftRight[0]),
+                  right = parseInt(leftRight[1]);
                 return left < right;
               } else {
                 return true;
               }
-            } else {
-              return false;
             }
+
+            return false;
+
           },
-          formatName: 'rangePlus', 
           message: 'This field is not a range.'
         },
-        'required': {
-          scopeAttr: 'required',
+        {
+          name: 'required',
           value: null,
           check: function requiredCheck(value) {
-            if(typeof value !== undefined) {
-              //return value.match(__validationClasses.required) !== null;
-              return value.trim().length > 0;
-            } else {
-              return false;
+            if (_.isArray(value)) {
+
+              return value.length;
+
             }
+
+            if (typeof value === 'object') {
+              return !!value;
+            }
+
+            if (typeof value !== undefined) {
+              return value ? value.trim().length > 0 : false;
+            }
+
+            return false;
+
           },
           message: 'This field is required.'
-        }
-      };
+        }];
 
-      this.attach = function attach(scopeObj) {
-        // TODO: Loop over the base validators
-        _.extend(scopeObj, { 
+      function extend(scopeObj) {
+        return _.extend(scopeObj, {
           'valid': '=?',
           'childids': '=?',
-          'minLength': '@',
-          'maxlength': '@',
-          'required': '@',
-          'pattern': '@',
-          'rangePlus': '@',
-          'money': '@',
-          'moneyrate': '@',
-          'dateymd': '@'
+          'minLength': '@?',
+          'maxLength': '@?',
+          'required': '@?',
+          'pattern': '@?',
+          'rangePlus': '@?',
+          'money': '@?',
+          'moneyrate': '@?',
+          'dateymd': '@?'
         });
+      }
 
-        return scopeObj;
-      };
-
-      this.resetValidationStates = function resetValidationStates($scope) {
+      function resetValidationStates($scope) {
         $scope.validatorStates = {};
 
-        if($scope.valid) {
+        if ($scope.valid) {
           $scope.valid.validatorControlStates = $scope.valid.validatorControlStates || {};
         }
-      };
+      }
 
-      this.addSelfAsChild = function addSelfAsChild($scope) {
-        if(typeof $scope.childids !== 'undefined') {
+      function addSelfAsChild($scope) {
+        if (_.isArray($scope.childids)) {
           $scope.childids.push($scope.id);
         }
-      };
+      }
 
-      this.deleteChildStates = function deleteChildStates(childStates, $scope) {
-        if(typeof $scope.valid.validatorControlStates !== 'undefined') {
+      function checkValidationStates(controlStates) {
+        var allValid = true;
+
+        function checkControlStates(controlState) {
+          allValid = allValid && controlState;
+          if (!allValid) {
+            return false;
+          }
+        }
+
+        if (_.isUndefined(controlStates)) {
+          return allValid;
+        }
+
+        _.each(controlStates, checkControlStates);
+
+        return allValid;
+      }
+
+      function setValidationState($scope, controlIsValid) {
+        $scope.state = controlIsValid ? 'default' : 'error';
+
+        if (!$scope.valid) {
+          $scope.valid = {};
+          $scope.valid.isValid = true;
+          return;
+        }
+
+        $scope.valid.validatorControlStates[$scope.id] = controlIsValid;
+        $scope.valid.isValid = checkValidationStates($scope.valid.validatorControlStates);
+      }
+
+      function validate($scope, $attrs) {
+
+        $scope.valid = $scope.valid || {};
+
+        var noId = !$scope.id,
+          controlIsDisabled = $scope.disabled,
+          controlIsValid = true;
+
+        buildValidators($scope, $attrs);
+
+        if (noId) {
+          console.warn(err.noId);
+          return;
+        }
+
+        if (controlIsDisabled) {
+          setValidationState($scope, controlIsValid);
+          return;
+        }
+
+        function performValidate(validator, validatorName) {
+          var _value = $scope.value;
+
+          if (_.isObject($scope.value) && $scope.labelProp) {
+            _value = $parse($scope.labelProp)($scope.value);
+          }
+          $scope.validatorStates[validatorName] = validator.check(_value);
+          controlIsValid = controlIsValid && $scope.validatorStates[validatorName];
+        }
+
+        _.each($scope.valid.validators, performValidate);
+
+        setValidationState($scope, controlIsValid);
+      }
+
+      function buildValidators($scope, $attrs) {
+
+        if (!$attrs) {
+          return;
+        }
+
+        $scope.valid = $scope.valid || {};
+
+        function byDeclaredValidators(validator) {
+          var wasDeclared = !_.isUndefined($attrs[validator.name]);
+
+          if (wasDeclared) {
+            return validator;
+          }
+        }
+
+        function toValuOverrides(validator) {
+          if ($attrs[validator.name] !== '') {
+            validator.value = $attrs[validator.name];
+          }
+          return validator;
+        }
+
+        resetValidationStates($scope);
+        addSelfAsChild($scope);
+
+        $scope.valid.validators = _
+          .chain(__baseValidators)
+          .filter(byDeclaredValidators)
+          .map(toValuOverrides)
+          .value();
+
+      }
+
+      function deleteChildStates(childStates, $scope) {
+        if (typeof $scope.valid.validatorControlStates !== 'undefined') {
           _.each(childStates, function deleteChildState(childState) {
             delete $scope.valid.validatorControlStates[childState];
           });
         }
 
-        this.validate($scope);
-      };
+        validate($scope);
+      }
+      this.deleteChildStates = deleteChildStates;
 
-      this.checkValidationStates = function checkValidationStates(controlStates) {
-        if(typeof controlStates === 'undefined') {
-          return true;
-        }
-
-        var allValid = true;
-        _.each(controlStates, function checkControlStates(controlState) {
-          allValid = allValid && controlState;
-          if(!allValid) {
-            return false;
-          }
-        });
-
-        return allValid;
-      };
-
-      this.validate = function validate($scope) {
-        if(typeof $scope.valid === 'undefined' ||
-           typeof $scope.valid.validatorControlStates === 'undefined') {
-          return;
-        }
-
-        var controlValid = true;
-
-        if(!$scope.disabled) {
-          _.each($scope.validators, function performValidate(validator, validatorName) {
-
-            if(typeof($scope.value) === 'object') {
-               if(typeof $scope.labelProp === 'undefined') {
-                 throw new Error('Value of type "object" given without a property to validate.');
-               } else {
-                 var getActualValue = $parse($scope.labelProp);
-                 var actualValue = getActualValue($scope.value);
-                 $scope.validatorStates[validatorName] = validator.check(actualValue);
-               }
-            } else {
-              $scope.validatorStates[validatorName] = validator.check($scope.value);
-            } 
-
-            controlValid = controlValid && $scope.validatorStates[validatorName];
-          });
-        }
-        
-        if(typeof $scope.id !== 'undefined' && $scope.id) {
-          $scope.valid.validatorControlStates[$scope.id] = controlValid;
-        }
-
-        $scope.state = controlValid ? 'default' : 'error';
-        
-        if(typeof $scope.valid !== 'undefined') {
-          $scope.valid.isValid = this.checkValidationStates($scope.valid.validatorControlStates);
-        }
-      };
-
-      this.handleDisabled = function handleDisabled(isDisabled, $scope) {
-        console.log('reacting to new value of disabled', isDisabled);
-        if(isDisabled) {
-          if(typeof $scope.valid !== 'undefined') {
-            $scope.valid.validatorControlStates[$scope.id] = true;
-            $scope.state = 'default';
-          }
-        }
-
-        this.validate($scope);
-      };
-
-      this.buildValidators = function buildValidators($scope) {
-        $scope.validators = {};
-        this.resetValidationStates($scope);
-
-        this.addSelfAsChild($scope);
-
-         _.each(__baseValidators, function buildValidator(validatorDef, validatorName) {
-           if(typeof $scope[validatorDef.scopeAttr] !== 'undefined') {
-            $scope.validators[validatorName] = _.clone(validatorDef);
-
-            // Set value to the given attribute. Treat blanks as true. This
-            // may seem strange but attributes like 'required' will just be
-            // tossed on and assumed true
-            if($scope.validators[validatorName].value === null) {
-              $scope.validators[validatorName].value =
-                $scope[validatorDef.scopeAttr] === '' ?
-                  true : $scope[validatorDef.scopeAttr];
-             }
-           }
-         });
-      };
-
+      this.validate = validate;
+      this.extend = extend;
     }
   ]);
-
