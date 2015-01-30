@@ -1,0 +1,34 @@
+{
+  "name": "@telogical/telui-validate",
+  "version": "0.1.0",
+  "description": "A validator that can be used by telui components and extended within an application",
+  "main": "index.js",
+  "scripts": {
+    "test": "gulp test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:Telogical/TelUI-Validate.git"
+  },
+  "keywords": [
+    "telui",
+    "validation",
+    "form",
+    "Telogical",
+    "angular",
+    "lodash"
+  ],
+  "author": "jhare@telogical.com",
+  "contributors": [{
+    "name": "Jesse Harlin",
+    "email": "jharlin@telogical.com"
+  }, {
+    "name": "Joe Hare",
+    "email": "jhare@telogical.com"
+  }],
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Telogical/TelUI-Validate/issues"
+  },
+  "homepage": "https://github.com/Telogical/TelUI-Validate"
+}
