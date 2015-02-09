@@ -1,8 +1,8 @@
 //It will be necessary to break this into separate files.
+require('@telogical/telui-core');
 
-var TelogicalUi = angular.module('TelUI');
-
-TelogicalUi
+angular
+  .module('TelUI')
   .service('TelUIValidate', [
     '$parse',
      function teluiValidateService($parse) {
