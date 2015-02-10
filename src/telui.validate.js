@@ -1,5 +1,5 @@
-//It will be necessary to break this into separate files.
-require('@telogical/telui-core');
+var TelUI = require('@telogical/telui-core'),
+  _ = TelUI.Core._;
 
 angular
   .module('TelUI')
