@@ -62,7 +62,7 @@ angular
             if (!value) {
               return true;
             }
-			var pattern = new RegExp(this.value, 'g');			
+            var pattern = new RegExp(this.value, 'g');			
             return value.match(pattern) !== null;
           },
           formatName: null, // 'a zip code', 'a phone number'
