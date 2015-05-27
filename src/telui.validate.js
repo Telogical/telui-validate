@@ -62,8 +62,8 @@ angular
             if (!value) {
               return true;
             }
-
-            return value.match(this.value) !== null;
+            var pattern = new RegExp(this.value, 'g');			
+            return value.match(pattern) !== null;
           },
           formatName: null, // 'a zip code', 'a phone number'
           message: 'This field does not meet the required format.'

@@ -10,3 +10,4 @@
 'moneyrate' :todo
 'rangePlus': todo
 'dateymd' : todo
+'pattern' : i.e. ^[0-9]$
