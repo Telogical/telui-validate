@@ -1,6 +1,6 @@
 {
   "name": "@telogical/telui-validate",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "A validator that can be used by telui components and extended within an application",
   "main": "index.js",
   "scripts": {
